@@ -3,6 +3,7 @@ from typing import List, Dict, Tuple
 from Day03 import INPUT
 from helper import Point, line_intersect, manhattan_distance, real_dist
 
+custom_print = print
 
 def create_points(way: str, origin: Point = Point(0, 0)) -> List[Point]:
     ret: List[Point] = [origin.copy()]
@@ -24,7 +25,9 @@ def create_points(way: str, origin: Point = Point(0, 0)) -> List[Point]:
     return ret
 
 
-def main():
+def main(printer=print):
+    global custom_print
+    custom_print = printer
     origin = Point(0, 0)
     points = [create_points(x, origin) for x in INPUT[:2]]
     cross: Dict[Point, Tuple[int, int]] = {}
@@ -56,7 +59,7 @@ def main():
             j_traveled_dist += real_dist(p21, p22)
         i_traveled_dist += real_dist(p11, p12)
 
-    print("\tFound crosses %s" % len(cross))
+    custom_print("\tFound crosses %s" % len(cross))
     min_cross = \
         sorted([x for x in cross.keys() if x.get_x() != 0 or x.get_y()],
                key=lambda x: abs(manhattan_distance(x, origin)))[
@@ -67,11 +70,11 @@ def main():
 
     fast_cross = sorted([x for x in [(x1, y1) for x1, y1 in cross.items()] if x[0].get_x() != 0 or x[0].get_y() != 0],
                         key=special_compare)[0][0]
-    print("\tClosest cross %s at distance %s" % (min_cross, manhattan_distance(min_cross, origin)))
-    print("\tCircuit 1 steps: %s" % cross[min_cross][0])
-    print("\tCircuit 2 steps: %s" % cross[min_cross][1])
-    print("\t Combined steps: %s" % (cross[min_cross][0] + cross[min_cross][1]))
-    print("\tFastest cross %s at distance %s" % (fast_cross, manhattan_distance(fast_cross, origin)))
-    print("\tCircuit 1 steps: %s" % cross[fast_cross][0])
-    print("\tCircuit 2 steps: %s" % cross[fast_cross][1])
-    print("\t Combined steps: %s" % (cross[fast_cross][0] + cross[fast_cross][1]))
+    custom_print("\tClosest cross %s at distance %s" % (min_cross, manhattan_distance(min_cross, origin)))
+    custom_print("\tCircuit 1 steps: %s" % cross[min_cross][0])
+    custom_print("\tCircuit 2 steps: %s" % cross[min_cross][1])
+    custom_print("\t Combined steps: %s" % (cross[min_cross][0] + cross[min_cross][1]))
+    custom_print("\tFastest cross %s at distance %s" % (fast_cross, manhattan_distance(fast_cross, origin)))
+    custom_print("\tCircuit 1 steps: %s" % cross[fast_cross][0])
+    custom_print("\tCircuit 2 steps: %s" % cross[fast_cross][1])
+    custom_print("\t Combined steps: %s" % (cross[fast_cross][0] + cross[fast_cross][1]))

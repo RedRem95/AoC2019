@@ -5,22 +5,36 @@ from Day05 import INPUT
 
 my_machine = default_int_machine.copy()
 
+custom_print = print
+
 
 def read_int():
     while True:
         try:
             return int(input("Give int pls: "))
         except ValueError:
-            print("Not a valid int")
+            custom_print("Not a valid int")
 
 
 def print_int(pos: int, value: int):
-    print(value)
+    custom_print(value)
+
+
+__it = 0
+
+
+def read_memory():
+    global __it
+    ret = [1, 5][__it]
+    __it += 1
+    custom_print("Memory said", ret)
+    return ret
 
 
 def read(code: List[int], loc: int, modes: Callable[[int], Mode]) -> Tuple[bool, int]:
+    global __it
     # code[code[loc + 1]] = read_int()
-    modes(1).write(code, loc + 1, read_int())
+    modes(1).write(code, loc + 1, read_memory())
     return False, loc + 2
 
 
@@ -56,10 +70,12 @@ my_machine.register_action(3, read)
 my_machine.register_action(4, write)
 
 
-def main():
-    print("A1")
+def main(printer=print):
+    global custom_print
+    custom_print = printer
+    custom_print("A1")
     work_code(INPUT, my_machine)
-    print("A2")
+    custom_print("A2")
     my_machine.register_action(5, jump_if_true)
     my_machine.register_action(6, jump_if_false)
     my_machine.register_action(7, less_than)

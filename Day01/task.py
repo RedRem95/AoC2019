@@ -2,6 +2,8 @@ import math
 
 from Day01 import INPUT
 
+custom_print = print
+
 
 def default_rule(x: float) -> float:
     return math.floor(int(x) / 3) - 2
@@ -16,9 +18,11 @@ def real_fuel(mod_mass: float, rule=default_rule):
     return ret_sum
 
 
-def main(rule=default_rule):
+def main(rule=default_rule, printer=print):
+    global custom_print
+    custom_print = printer
     raw = [int(x) for x in INPUT]
     res = sum([rule(x) for x in raw])
-    print("Module Fuel:", res)
+    custom_print("Module Fuel:", res)
     res = sum([real_fuel(x, rule) for x in raw])
-    print(" Fuel  Fuel:", res)
+    custom_print(" Fuel  Fuel:", res)

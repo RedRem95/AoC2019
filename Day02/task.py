@@ -4,6 +4,8 @@ from typing import List, Callable, Tuple, Dict, Iterable, Union
 from Day02 import INPUT
 from helper import int_to_iter
 
+custom_print = print
+
 
 class Mode(ABC):
     def __init__(self):
@@ -149,20 +151,22 @@ def calc_output(code, noun, verb):
     return work_code(code)[0]
 
 
-def main():
+def main(printer=print):
+    global custom_print
+    custom_print = printer
     code = parse_int_code(INPUT)
-    print("A1:", calc_output(code, 12, 2))
+    custom_print("A1:", calc_output(code, 12, 2))
     searched_output = 19690720
     out_count = 0
     calc_ans = lambda n, v: 100 * n + v
-    print("A2:")
+    custom_print("A2:")
     for noun in range(0, 99 + 1, 1):
         for verb in range(0, 99 + 1, 1):
             output = calc_output(code, noun, verb)
             if output == searched_output:
                 out_count += 1
-                print("\tOut %s" % out_count)
-                print("\t\tNoun:", noun)
-                print("\t\tVerb:", verb)
-                print("\t\t Ans:", calc_ans(noun, verb))
-                print("\t\t Out:", output)
+                custom_print("\tOut %s" % out_count)
+                custom_print("\t\tNoun:", noun)
+                custom_print("\t\tVerb:", verb)
+                custom_print("\t\t Ans:", calc_ans(noun, verb))
+                custom_print("\t\t Out:", output)
