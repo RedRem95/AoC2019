@@ -1,7 +1,7 @@
 import inspect
 from math import sqrt
 from os.path import join, dirname
-from typing import Union, List
+from typing import Union, List, Iterable
 
 
 def load_input(file_name: str = None):
@@ -106,3 +106,24 @@ def only_increase(pw: List[int]):
 
 def int_to_iter(value: int) -> List[int]:
     return [int(x) for x in str(value)]
+
+
+def get_all_combs(minimum: int = 0, maximum: int = 4, start_list=[], just_once=True, length: int = 4,
+                  prohibited: List[int] = []) -> Iterable[
+    List[int]]:
+    for i1 in (x for x in range(min(minimum, maximum), max(maximum, minimum) + 1, 1) if x not in prohibited):
+        curr_list = start_list.copy()
+        curr_list.append(i1)
+        cur_prohibited = prohibited.copy()
+        if just_once:
+            cur_prohibited.append(i1)
+        if length <= 0:
+            yield curr_list.copy()
+        else:
+            for x in get_all_combs(minimum=minimum,
+                                   maximum=maximum,
+                                   start_list=curr_list,
+                                   just_once=just_once,
+                                   length=length - 1,
+                                   prohibited=cur_prohibited):
+                yield x

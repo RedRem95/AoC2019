@@ -34,7 +34,7 @@ def read_memory():
 def read(code: List[int], loc: int, modes: Callable[[int], Mode]) -> Tuple[bool, int]:
     global __it
     # code[code[loc + 1]] = read_int()
-    modes(1).write(code, loc + 1, read_memory())
+    modes(1).write(code, loc + 1, read_int())
     return False, loc + 2
 
 
@@ -69,6 +69,13 @@ def equal_with(code: List[int], loc: int, modes: Callable[[int], Mode]) -> Tuple
 my_machine.register_action(3, read)
 my_machine.register_action(4, write)
 
+my_mode_machine = my_machine.copy()
+
+my_mode_machine.register_action(5, jump_if_true)
+my_mode_machine.register_action(6, jump_if_false)
+my_mode_machine.register_action(7, less_than)
+my_mode_machine.register_action(8, equal_with)
+
 
 def main(printer=print):
     global custom_print
@@ -76,8 +83,4 @@ def main(printer=print):
     custom_print("A1")
     work_code(INPUT, my_machine)
     custom_print("A2")
-    my_machine.register_action(5, jump_if_true)
-    my_machine.register_action(6, jump_if_false)
-    my_machine.register_action(7, less_than)
-    my_machine.register_action(8, equal_with)
     work_code(INPUT, my_machine)

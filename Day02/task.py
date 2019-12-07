@@ -116,7 +116,7 @@ def parse_int_code(codes: str) -> List[int]:
         return []
 
 
-def work_code(code: Union[List[int], str], machine: IntMachine = default_int_machine):
+def work_code(code: Union[List[int], str], machine: IntMachine = default_int_machine) -> List[int]:
     if not isinstance(code, list):
         code = parse_int_code(code)
     else:
