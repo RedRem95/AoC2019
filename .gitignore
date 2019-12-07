@@ -89,3 +89,7 @@ modules.xml
 .idea/sonarlint
 
 # End of https://www.gitignore.io/api/pycharm+all
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
