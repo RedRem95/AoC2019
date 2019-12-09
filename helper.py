@@ -7,13 +7,24 @@ from typing import Union, List, Iterable
 import requests
 
 
+class DownloadFailedError(Exception):
+    pass
+
+
 def load_input(file_name: str = None):
     file_name = file_name if file_name is not None else join(dirname(inspect.getmodule(inspect.stack()[1][0]).__file__),
                                                              "input.txt")
     if not exists(file_name):
         try:
             day = int(dirname(inspect.getmodule(inspect.stack()[1][0]).__file__)[-2:])
-            cookies = {'session': getenv("ADVENT_OF_CODE_SESSIONID")}
+            sessid = getenv("ADVENT_OF_CODE_SESSIONID", None)
+            if sessid is None:
+                print(
+                    f"Please give your sessionid as enviroment variable \"{'ADVENT_OF_CODE_SESSIONID'}\" to "
+                    f"automatically download the input. Or insert a input.txt with your input into the respective "
+                    f"Day* folder")
+                raise DownloadFailedError()
+            cookies = {'session': sessid}
             headers = {'User-Agent': 'Mozilla/5.0'}
             response = requests.get(f'https://adventofcode.com/2019/day/{day}/input', cookies=cookies, headers=headers)
             webpage = response.text

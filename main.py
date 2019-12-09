@@ -2,6 +2,8 @@ from os import listdir
 from os.path import isdir, dirname, join
 from time import time as time
 
+from helper import DownloadFailedError
+
 AUTOMATIC = True
 
 
@@ -25,5 +27,5 @@ if __name__ == "__main__":
             end_time = time()
             print('=' * 4)
             print("Time", "{time:10.3f}ms".format(time=(end_time - start_time) * 1000))
-        except (AttributeError, ModuleNotFoundError) as e:
+        except (AttributeError, ModuleNotFoundError, DownloadFailedError) as e:
             pass
