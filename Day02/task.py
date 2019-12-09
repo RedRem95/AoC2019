@@ -7,16 +7,45 @@ from helper import int_to_iter
 custom_print = print
 
 
+class CustomCode:
+
+    def __init__(self, init_list: Union[List[int], None] = None):
+        self.__code: List[int] = init_list if init_list is not None and isinstance(init_list, list) else []
+
+    def copy(self):
+        ret = CustomCode()
+        ret.__code = self.__code.copy()
+        return ret
+
+    def __ensure_key(self, key):
+        if key < 0:
+            raise IndexError("You cant access negative memory")
+        if key >= len(self.__code):
+            for i in range(len(self.__code), key + 1, 1):
+                self.__code.append(0)
+
+    def __getitem__(self, key) -> int:
+        self.__ensure_key(key)
+        return self.__code[key]
+
+    def __setitem__(self, key, value):
+        self.__ensure_key(key)
+        self.__code[key] = value
+
+    def __str__(self):
+        return f"IntCode: {', '.join((str(x) for x in self.__code))}"
+
+
 class Mode(ABC):
     def __init__(self):
         pass
 
     @abstractmethod
-    def read(self, code: List[int], loc: int) -> int:
+    def read(self, code: Union[List[int], CustomCode], loc: int) -> int:
         pass
 
     @abstractmethod
-    def write(self, code: List[int], loc: int, value: int) -> List[int]:
+    def write(self, code: Union[List[int], CustomCode], loc: int, value: int) -> List[int]:
         pass
 
 
@@ -109,15 +138,15 @@ default_int_machine.register_mode(1, ImmediateMode())
 default_int_machine.set_default_mode(0)
 
 
-def parse_int_code(codes: str) -> List[int]:
+def parse_int_code(codes: str) -> CustomCode:
     if len(codes) > 0:
-        return [int(str(x).strip()) for x in str(codes).split(",")]
+        return CustomCode([int(str(x).strip()) for x in str(codes).split(",")])
     else:
-        return []
+        return CustomCode()
 
 
-def work_code(code: Union[List[int], str], machine: IntMachine = default_int_machine) -> List[int]:
-    if not isinstance(code, list):
+def work_code(code: Union[List[int], str, CustomCode], machine: IntMachine = default_int_machine) -> CustomCode:
+    if not isinstance(code, CustomCode):
         code = parse_int_code(code)
     else:
         code = code.copy()

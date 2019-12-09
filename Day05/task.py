@@ -31,10 +31,21 @@ def read_memory():
     return ret
 
 
+__it = 0
+
+
+def read_memory():
+    global __it
+    ret = [1, 5][__it]
+    __it += 1
+    custom_print("Memory said", ret)
+    return ret
+
+
 def read(code: List[int], loc: int, modes: Callable[[int], Mode]) -> Tuple[bool, int]:
     global __it
     # code[code[loc + 1]] = read_int()
-    modes(1).write(code, loc + 1, read_int())
+    modes(1).write(code, loc + 1, read_memory())
     return False, loc + 2
 
 

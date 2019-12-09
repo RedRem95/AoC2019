@@ -2,7 +2,6 @@ from Day06 import INPUT
 
 custom_print = print
 
-
 class SpaceObject:
     __space_objects = {}
 
