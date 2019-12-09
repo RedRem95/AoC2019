@@ -11,6 +11,9 @@ class DownloadFailedError(Exception):
     pass
 
 
+YEAR = 2019
+
+
 def load_input(file_name: str = None):
     file_name = file_name if file_name is not None else join(dirname(inspect.getmodule(inspect.stack()[1][0]).__file__),
                                                              "input.txt")
@@ -26,7 +29,8 @@ def load_input(file_name: str = None):
                 raise DownloadFailedError()
             cookies = {'session': sessid}
             headers = {'User-Agent': 'Mozilla/5.0'}
-            response = requests.get(f'https://adventofcode.com/2019/day/{day}/input', cookies=cookies, headers=headers)
+            response = requests.get(f'https://adventofcode.com/{YEAR}/day/{day}/input', cookies=cookies,
+                                    headers=headers)
             webpage = response.text
             with open(file_name, "w") as fin:
                 fin.write(webpage)
