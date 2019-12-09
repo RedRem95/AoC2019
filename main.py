@@ -10,7 +10,7 @@ def custom_print(*data, **options):
 
 if __name__ == "__main__":
     direct = dirname(__file__)
-    for fold in sorted(x for x in listdir(direct) if isdir(join(direct, x)) if x == "Day09"):
+    for fold in sorted(x for x in listdir(direct) if isdir(join(direct, x)) if x == "Day07"):
         try:
             # noinspection PyUnresolvedReferences
             tmp = __import__("%s.task" % fold).task
