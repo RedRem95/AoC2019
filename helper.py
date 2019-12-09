@@ -1,15 +1,28 @@
 import inspect
 from math import sqrt
-from os.path import join, dirname
+from os import getenv
+from os.path import join, dirname, exists
 from typing import Union, List, Iterable
+
+import requests
 
 
 def load_input(file_name: str = None):
     file_name = file_name if file_name is not None else join(dirname(inspect.getmodule(inspect.stack()[1][0]).__file__),
                                                              "input.txt")
+    if not exists(file_name):
+        try:
+            day = int(dirname(inspect.getmodule(inspect.stack()[1][0]).__file__)[-2:])
+            cookies = {'session': getenv("ADVENT_OF_CODE_SESSIONID")}
+            headers = {'User-Agent': 'Mozilla/5.0'}
+            response = requests.get(f'https://adventofcode.com/2019/day/{day}/input', cookies=cookies, headers=headers)
+            webpage = response.text
+            with open(file_name, "w") as fin:
+                fin.write(webpage)
+        except:
+            raise SystemError("Input does not exist and download of input failed. Sad")
     with open(file_name, "r") as fin:
-        lines = [str(x).strip() for x in fin.readlines()]
-    return lines
+        return [str(x).strip() for x in fin.readlines()]
 
 
 class Point:
