@@ -127,3 +127,14 @@ def get_all_combs(minimum: int = 0, maximum: int = 4, start_list=[], just_once=T
                                    length=length - 1,
                                    prohibited=cur_prohibited):
                 yield x
+
+
+class Iterator:
+    def __init__(self, init_it):
+        self.__it = init_it
+
+    def increase(self, by=1):
+        self.__it += by
+
+    def get(self):
+        return self.__it

@@ -40,6 +40,9 @@ class Mode(ABC):
     def __init__(self):
         pass
 
+    def machine_restarts(self):
+        pass
+
     @abstractmethod
     def read(self, code: Union[List[int], CustomCode], loc: int) -> int:
         pass
@@ -90,6 +93,10 @@ class IntMachine:
         self.__action: Dict[int, Callable[[List[int], int, Callable[[int], Mode]], Tuple[bool, int]]] = {}
         self.__modes: Dict[int, Mode] = {}
         self.__default_mode = None
+
+    def reset_machine(self):
+        for i in self.__modes.values():
+            i.machine_restarts()
 
     def register_action(self, code: int, action: Callable[[List[int], int, Callable[[int], Mode]], Tuple[bool, int]]):
         self.__action[code] = action
@@ -151,6 +158,8 @@ def work_code(code: Union[List[int], str, CustomCode], machine: IntMachine = def
     else:
         code = code.copy()
     loc = 0
+
+    machine.reset_machine()
 
     def generate_op_mode(loc: int) -> Tuple[int, Callable[[int], Union[int, None]]]:
         ints = int_to_iter(loc)

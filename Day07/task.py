@@ -5,7 +5,9 @@ from typing import List, Callable, Tuple, Iterable, Union
 from Day02.task import work_code, IntMachine, Mode
 from Day05.task import my_mode_machine
 from Day07 import INPUT
-from helper import get_all_combs
+from helper import get_all_combs, Iterator
+
+my_mode_machine = my_mode_machine.copy()
 
 custom_printer = print
 
@@ -19,17 +21,6 @@ class Signal:
 
     def get_signal(self):
         return self.__signal
-
-
-class Iterator:
-    def __init__(self, init_it):
-        self.__it = init_it
-
-    def increase(self, by=1):
-        self.__it += by
-
-    def get(self):
-        return self.__it
 
 
 def check_amplifier(code: str, machine: IntMachine, phases: Iterable[int] = [], signal: int = 0):
