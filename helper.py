@@ -1,5 +1,5 @@
 import inspect
-from math import sqrt
+from math import sqrt, acos, pi
 from os import getenv
 from os.path import join, dirname, exists
 from typing import Union, List, Iterable
@@ -60,6 +60,12 @@ class Point:
     def __hash__(self) -> int:
         return hash((self.__x, self.__y))
 
+    def __eq__(self, other):
+        return self.get_x() == other.get_x() and self.get_y() == other.get_y() if isinstance(other, Point) else False
+
+    def __ne__(self, other):
+        return self.__eq__(other)
+
 
 def vector_intersect(p11: Point, p12: Point, p21: Point, p22: Point) -> Union[bool, Point]:
     xdiff = (p11.get_x() - p12.get_x(), p21.get_x() - p22.get_x())
@@ -91,6 +97,21 @@ def line_intersect(p11: Point, p12: Point, p21: Point, p22: Point) -> Union[bool
     if not (p21.get_y() <= vec_in.get_y() <= p22.get_y() or p21.get_y() >= vec_in.get_y() >= p22.get_y()):
         return False
     return vec_in
+
+
+def direction(p1: Point, p2: Point) -> Point:
+    return Point(p1.get_x() - p2.get_x(), p1.get_y() - p2.get_y())
+
+
+def angle(p1: Point, p2: Point) -> float:
+    if p1.get_x() - p2.get_x() >= 0:
+        return acos((p1.get_x() * p2.get_x() + p1.get_y() * p2.get_y()) / (
+                sqrt(p1.get_x() * p1.get_x() + p1.get_y() * p1.get_y()) * sqrt(
+            p2.get_x() * p2.get_x() + p2.get_y() * p2.get_y())))
+    else:
+        return 2 * pi - acos((p1.get_x() * p2.get_x() + p1.get_y() * p2.get_y()) / (
+                sqrt(p1.get_x() * p1.get_x() + p1.get_y() * p1.get_y()) * sqrt(
+            p2.get_x() * p2.get_x() + p2.get_y() * p2.get_y())))
 
 
 def manhattan_distance(p1: Point, p2: Point) -> float:
@@ -166,3 +187,10 @@ class Iterator:
 
     def get(self):
         return self.__it
+
+
+def ggt(a, b):
+    while b != 0:
+        c = a % b
+        a, b = b, c
+    return a
