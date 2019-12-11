@@ -61,10 +61,13 @@ class Point:
         return hash((self.__x, self.__y))
 
     def __eq__(self, other):
-        return self.get_x() == other.get_x() and self.get_y() == other.get_y() if isinstance(other, Point) else False
+        return self.equals(other) if isinstance(other, Point) else False
 
     def __ne__(self, other):
         return self.__eq__(other)
+
+    def equals(self, other):
+        return self.get_x() == other.get_x() and self.get_y() == other.get_y()
 
 
 def vector_intersect(p11: Point, p12: Point, p21: Point, p22: Point) -> Union[bool, Point]:
@@ -179,10 +182,10 @@ def get_all_combs(minimum: int = 0, maximum: int = 4, start_list=[], just_once=T
 
 
 class Iterator:
-    def __init__(self, init_it):
-        self.__it = init_it
+    def __init__(self, init_it: int = 0):
+        self.__it: int = init_it
 
-    def increase(self, by=1):
+    def increase(self, by: int = 1):
         self.__it += by
 
     def get(self):

@@ -7,7 +7,7 @@ from main import AUTOMATIC
 custom_printer = print
 
 from Day05.task import my_mode_machine
-from Day02.task import Mode, work_code, CustomCode
+from Day02.task import Mode, work_code, CustomList
 
 my_machine = my_mode_machine.copy()
 
@@ -44,15 +44,18 @@ class RelativeMode(Mode):
     def read(self, code: List[int], loc: int) -> int:
         return code[self.__rel_base.get_base() + code[loc]]
 
-    def write(self, code: CustomCode, loc: int, value: int) -> CustomCode:
+    def write(self, code: CustomList, loc: int, value: int) -> CustomList:
         code[self.__rel_base.get_base() + code[loc]] = value
         return code
+
+    def copy(self) -> Mode:
+        return RelativeMode(RelativeBase(self.__rel_base.get_base()))
 
 
 __rel_base = RelativeBase(0)
 
 
-def __adj_base(code: CustomCode, loc: int, modes: Callable[[int], Mode]) -> Tuple[bool, int]:
+def __adj_base(code: CustomList, loc: int, modes: Callable[[int], Mode]) -> Tuple[bool, int]:
     __rel_base.adjust_base(modes(1).read(code, loc + 1))
     return False, loc + 2
 

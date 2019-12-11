@@ -7,13 +7,14 @@ from helper import int_to_iter
 custom_print = print
 
 
-class CustomCode:
+class CustomList:
 
-    def __init__(self, init_list: Union[List[int], None] = None):
+    def __init__(self, init_list: Union[List[int], None] = None, default_value=0):
         self.__code: List[int] = init_list if init_list is not None and isinstance(init_list, list) else []
+        self.default_value = default_value
 
     def copy(self):
-        ret = CustomCode()
+        ret = CustomList()
         ret.__code = self.__code.copy()
         return ret
 
@@ -22,7 +23,7 @@ class CustomCode:
             raise IndexError("You cant access negative memory")
         if key >= len(self.__code):
             for i in range(len(self.__code), key + 1, 1):
-                self.__code.append(0)
+                self.__code.append(self.default_value)
 
     def __getitem__(self, key) -> int:
         self.__ensure_key(key)
@@ -35,6 +36,9 @@ class CustomCode:
     def __str__(self):
         return f"IntCode: {', '.join((str(x) for x in self.__code))}"
 
+    def __len__(self):
+        return len(self.__code)
+
 
 class Mode(ABC):
     def __init__(self):
@@ -43,12 +47,15 @@ class Mode(ABC):
     def machine_restarts(self):
         pass
 
+    def copy(self):
+        return self.__class__()
+
     @abstractmethod
-    def read(self, code: Union[List[int], CustomCode], loc: int) -> int:
+    def read(self, code: Union[List[int], CustomList], loc: int) -> int:
         pass
 
     @abstractmethod
-    def write(self, code: Union[List[int], CustomCode], loc: int, value: int) -> List[int]:
+    def write(self, code: Union[List[int], CustomList], loc: int, value: int) -> List[int]:
         pass
 
 
@@ -131,7 +138,7 @@ class IntMachine:
         for x, y in self.__action.items():
             ret.register_action(x, y)
         for x, y in self.__modes.items():
-            ret.register_mode(x, y)
+            ret.register_mode(x, y.copy())
         ret.set_default_mode(self.__default_mode)
         return ret
 
@@ -145,15 +152,15 @@ default_int_machine.register_mode(1, ImmediateMode())
 default_int_machine.set_default_mode(0)
 
 
-def parse_int_code(codes: str) -> CustomCode:
+def parse_int_code(codes: str) -> CustomList:
     if len(codes) > 0:
-        return CustomCode([int(str(x).strip()) for x in str(codes).split(",")])
+        return CustomList([int(str(x).strip()) for x in str(codes).split(",")])
     else:
-        return CustomCode()
+        return CustomList()
 
 
-def work_code(code: Union[List[int], str, CustomCode], machine: IntMachine = default_int_machine) -> CustomCode:
-    if not isinstance(code, CustomCode):
+def work_code(code: Union[List[int], str, CustomList], machine: IntMachine = default_int_machine) -> CustomList:
+    if not isinstance(code, CustomList):
         code = parse_int_code(code)
     else:
         code = code.copy()
