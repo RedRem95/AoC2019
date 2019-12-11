@@ -1,5 +1,7 @@
 from typing import Union, List, Dict, Callable, Tuple, Iterable
 
+from PIL import Image
+
 from Day02.task import IntMachine, CustomList, work_code, Mode
 from Day09.task import my_machine
 from Day11 import INPUT
@@ -56,7 +58,7 @@ class HullRobot:
     def set_color(self, point: Point, color: int):
         if point not in self.panel:
             self.painted_panels += 1
-        custom_printer(f"Robot paints position {point} from {self.get_color(point)} to {color}")
+        # custom_printer(f"Robot paints position {point} from {self.get_color(point)} to {color}")
         self.panel[point] = color
 
     def deploy_robot(self, code: Union[List[int], str, CustomList], print_steps: bool = False):
@@ -87,8 +89,9 @@ class HullRobot:
 
         work_code(code, deploy_machine)
 
-    def get_work(self, color_codes={0: ".", 1: "#"}, direction_codes={1: "^", 2: ">", 3: "v", 4: "<"}) -> Iterable[
-        Iterable[str]]:
+    def get_work(self, color_codes: Dict[int, object] = {0: ".", 1: "#"},
+                 direction_codes: Dict[int, object] = {1: "^", 2: ">", 3: "v", 4: "<"}) -> Iterable[
+        Iterable[object]]:
         x_l, y_l = [x.get_x() for x in self.panel.keys()] + [self.position.get_x()], [x.get_y() for x in
                                                                                       self.panel.keys()] + [
                        self.position.get_y()]
@@ -96,12 +99,28 @@ class HullRobot:
         max_x = max(x_l)
         min_y = min(y_l)
         max_y = max(y_l)
-        for y in range(min_y, max_y + 1, 1):
+        for y in range(max_y, min_y - 1, -1):
             yield (direction_codes[self.direction] if self.position.equals(Point(x, y)) else color_codes[
                 self.get_color(Point(x, y))] for x in range(min_x, max_x + 1, 1))
 
     def draw_work(self, color_codes={0: ".", 1: "#"}, direction_codes={1: "^", 2: ">", 3: "v", 4: "<"}):
-        custom_printer("\n".join("".join(i) for i in self.get_work(color_codes, direction_codes)))
+        custom_printer("\n".join("".join((str(j) for j in i)) for i in self.get_work(color_codes, direction_codes)))
+
+    def draw_bmp(self, colors: Dict[int, Tuple[int, int, int]] = {1: (255, 255, 255), 0: (0, 0, 0)},
+                 robot_color=(255, 0, 0)) -> Image:
+        res_image = [[y for y in x] for x in self.get_work(color_codes=colors,
+                                                           direction_codes={1: robot_color,
+                                                                            2: robot_color,
+                                                                            3: robot_color,
+                                                                            4: robot_color})]
+        height = len(res_image)
+        width = len(res_image[0]) if height > 0 else 0
+        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))  # Create a new black image
+        pixels = img.load()  # Create the pixel map
+        for i in range(width):  # For every pixel:
+            for j in range(height):
+                pixels[i, j] = res_image[j][i]
+        return img
 
 
 def main(printer=print):
@@ -116,4 +135,4 @@ def main(printer=print):
     main_painter = HullRobot(machine=my_machine.copy(), default_color=0, start_point=Point(0, 0), starting_color=1)
     main_painter.deploy_robot(INPUT, print_steps=False)
     custom_printer(f"Robot painted {main_painter.get_painted_panes()} panels on its way")
-    main_painter.draw_work()
+    main_painter.draw_bmp().save("Registration_hull.png", "PNG")

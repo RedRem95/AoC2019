@@ -47,8 +47,9 @@ class Mode(ABC):
     def machine_restarts(self):
         pass
 
+    @abstractmethod
     def copy(self):
-        return self.__class__()
+        return self
 
     @abstractmethod
     def read(self, code: Union[List[int], CustomList], loc: int) -> int:
@@ -77,6 +78,9 @@ def halt(code: List[int], loc: int, modes: Callable[[int], Mode]) -> Tuple[bool,
 
 class PositionMode(Mode):
 
+    def copy(self):
+        return PositionMode()
+
     def read(self, code: List[int], loc: int):
         return code[code[loc]]
 
@@ -86,6 +90,9 @@ class PositionMode(Mode):
 
 
 class ImmediateMode(Mode):
+
+    def copy(self):
+        return ImmediateMode()
 
     def read(self, code: List[int], loc: int) -> int:
         return code[loc]
@@ -138,7 +145,7 @@ class IntMachine:
         for x, y in self.__action.items():
             ret.register_action(x, y)
         for x, y in self.__modes.items():
-            ret.register_mode(x, y.copy())
+            ret.register_mode(x, y)
         ret.set_default_mode(self.__default_mode)
         return ret
 
@@ -168,8 +175,8 @@ def work_code(code: Union[List[int], str, CustomList], machine: IntMachine = def
 
     machine.reset_machine()
 
-    def generate_op_mode(loc: int) -> Tuple[int, Callable[[int], Union[int, None]]]:
-        ints = int_to_iter(loc)
+    def generate_op_mode(code_at_loc: int) -> Tuple[int, Callable[[int], Union[int, None]]]:
+        ints = int_to_iter(code_at_loc)
         if len(ints) == 1:
             return ints[0], lambda x: None
         op = int(str("".join([str(x) for x in ints[-2:]])))

@@ -4,11 +4,11 @@ from time import time as time
 
 from helper import DownloadFailedError
 
-AUTOMATIC = False
+AUTOMATIC = True
 
 
 def custom_print(*data, **options):
-    if not AUTOMATIC:
+    if not AUTOMATIC or True:
         print(*data, **options)
     pass
 

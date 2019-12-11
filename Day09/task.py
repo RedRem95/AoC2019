@@ -21,6 +21,7 @@ class RelativeBase:
         return self.__base
 
     def set_base(self, base: int) -> int:
+        custom_printer(f"Setting relative base to {base}")
         self.__base = base
         return self.__base
 
