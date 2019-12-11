@@ -8,14 +8,14 @@ AUTOMATIC = True
 
 
 def custom_print(*data, **options):
-    if not AUTOMATIC or True:
+    if not AUTOMATIC:
         print(*data, **options)
     pass
 
 
 if __name__ == "__main__":
     direct = dirname(__file__)
-    for fold in sorted(x for x in listdir(direct) if isdir(join(direct, x)) if str(x).startswith("Day11")):
+    for fold in sorted(x for x in listdir(direct) if isdir(join(direct, x)) if str(x).startswith("Day")):
         try:
             # noinspection PyUnresolvedReferences
             tmp = __import__("%s.task" % fold).task
