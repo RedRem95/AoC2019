@@ -31,6 +31,7 @@ def load_input(file_name: str = None):
             headers = {'User-Agent': 'Mozilla/5.0'}
             response = requests.get(f'https://adventofcode.com/{YEAR}/day/{day}/input', cookies=cookies,
                                     headers=headers)
+            print(f"Did the download for Day {day}")
             webpage = response.text
             with open(file_name, "w") as fin:
                 fin.write(webpage)
