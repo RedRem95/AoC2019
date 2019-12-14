@@ -162,8 +162,7 @@ def int_to_iter(value: int) -> List[int]:
 
 
 def get_all_combs(minimum: int = 0, maximum: int = 4, start_list=[], just_once=True, length: int = 4,
-                  prohibited: List[int] = []) -> Iterable[
-    List[int]]:
+                  prohibited: List[int] = []) -> Iterable[List[int]]:
     for i1 in (x for x in range(min(minimum, maximum), max(maximum, minimum) + 1, 1) if x not in prohibited):
         curr_list = start_list.copy()
         curr_list.append(i1)
@@ -198,3 +197,12 @@ def ggt(a, b):
         c = a % b
         a, b = b, c
     return a
+
+
+def get_all_combinations(orig: List[List[object]]) -> Iterable[List[object]]:
+    if len(orig) > 0:
+        for l in orig[0]:
+            for x in get_all_combinations(orig[1:]):
+                yield [l] + x
+    else:
+        yield []

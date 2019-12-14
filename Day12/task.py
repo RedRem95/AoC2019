@@ -127,6 +127,7 @@ def simulate(moons: List[Moon], steps=None):
 
 
 def main(printer=print):
+    return
     global custom_printer
     custom_printer = printer
     simulate([Moon(x) for x in INPUT], 1000)
