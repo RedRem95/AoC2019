@@ -1,11 +1,18 @@
+import queue
+import threading
+from multiprocessing import Pool
+from multiprocessing import cpu_count
 from typing import Union, Iterable, Dict
 from math import ceil
+
+import typing
+
 from Day14 import INPUT
 from pprint import pformat
 
 custom_printer = print
 
-if False:
+if True:
     INPUT = [
         "10 ORE => 10 A",
         "1 ORE => 1 B",
@@ -81,18 +88,22 @@ def create_materials(reactions: Iterable[str], target: Material) -> Dict[str, Ma
     return materials
 
 
+def __apply_reaction(i_p_s):
+    return i_p_s[1].apply_reation(i_p_s[2].copy(), i_p_s[0])
+
 def test_combinations(reactions: Iterable[Union[str, Reaction]], store: Dict[str, int]) -> Iterable[Dict[str, int]]:
     reactions = [x if isinstance(x, Reaction) else Reaction(x) for x in reactions]
-    yield store
+
     for poss_reaction, times in ((x, x.reaction_can_run_times(store)) for x in reactions if x.reaction_possible(store)):
-        found_one = True
-        #custom_printer(f"Reaction '{poss_reaction}' is able to run up to {times} times")
-        for i in range(times, 0, -1):
-            use_store = poss_reaction.apply_reation(store.copy(), times)
-            used_reactions = reactions.copy()
-            used_reactions.remove(poss_reaction)
+        used_reactions = reactions.copy()
+        used_reactions.remove(poss_reaction)
+        with Pool(cpu_count()) as p:
+            pool_res = p.map(__apply_reaction, [(x, poss_reaction, store) for x in range(times, 0, -1)])
+
+        for use_store in pool_res:
             for x in test_combinations(used_reactions, use_store):
                 yield x
+    yield store
 
 
 def main(printer=print):
@@ -117,7 +128,9 @@ def main(printer=print):
     custom_printer(f"To create {target_count} {target} you need {origin_count} {origin}")
 
     found_origin = 1000000000000
+    found_origin = 100
     curr_max = 0
+
 
     for x in test_combinations(INPUT, {origin: found_origin}):
         if x.get(target, 0) > curr_max:
@@ -125,4 +138,3 @@ def main(printer=print):
             curr_max = x.get(target, 0)
 
     custom_printer(f"Best production: {curr_max}")
-
