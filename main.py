@@ -28,4 +28,4 @@ if __name__ == "__main__":
             print('=' * 4)
             print("Time", "{time:10.3f}ms".format(time=(end_time - start_time) * 1000))
         except (AttributeError, ModuleNotFoundError, DownloadFailedError) as e:
-            pass
+            raise e

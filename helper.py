@@ -52,6 +52,14 @@ class Point:
     def get_y(self):
         return self.__y
 
+    def set_x(self, x):
+        self.__x = x
+        return self
+
+    def set_y(self, y):
+        self.__y = y
+        return self
+
     def __str__(self):
         return "<%s,%s>" % (self.__x, self.__y)
 
@@ -169,7 +177,7 @@ def get_all_combs(minimum: int = 0, maximum: int = 4, start_list=[], just_once=T
         cur_prohibited = prohibited.copy()
         if just_once:
             cur_prohibited.append(i1)
-        if length <= 0:
+        if length <= 1:
             yield curr_list.copy()
         else:
             for x in get_all_combs(minimum=minimum,
@@ -184,12 +192,19 @@ def get_all_combs(minimum: int = 0, maximum: int = 4, start_list=[], just_once=T
 class Iterator:
     def __init__(self, init_it: int = 0):
         self.__it: int = init_it
+        self.__init_it: int = init_it
+
+    def reset(self):
+        self.__it = self.__init_it
 
     def increase(self, by: int = 1):
         self.__it += by
 
     def get(self):
         return self.__it
+
+    def __str__(self):
+        return f"Iterator at {self.__it}"
 
 
 def ggt(a, b):
@@ -206,3 +221,13 @@ def get_all_combinations(orig: List[List[object]]) -> Iterable[List[object]]:
                 yield [l] + x
     else:
         yield []
+
+
+from dataclasses import dataclass, field
+from typing import Any
+
+
+@dataclass(order=True)
+class PrioritizedItem:
+    priority: int
+    item: Any = field(compare=False)
