@@ -198,3 +198,7 @@ def ggt(a, b):
         c = a % b
         a, b = b, c
     return a
+
+
+def kgv(a, b):
+    return (a * b) / ggt(a, b)

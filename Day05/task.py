@@ -10,10 +10,10 @@ my_machine = default_int_machine.copy()
 custom_print = print
 
 
-def read_int():
+def read_int(message: str = "Give int pls: "):
     while True:
         try:
-            return int(input("Give int pls: "))
+            return int(input(message))
         except ValueError:
             custom_print("Not a valid int")
 
