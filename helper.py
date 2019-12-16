@@ -52,6 +52,14 @@ class Point:
     def get_y(self):
         return self.__y
 
+    def set_x(self, x):
+        self.__x = x
+        return self
+
+    def set_y(self, y):
+        self.__y = y
+        return self
+
     def __str__(self):
         return "<%s,%s>" % (self.__x, self.__y)
 
@@ -162,15 +170,14 @@ def int_to_iter(value: int) -> List[int]:
 
 
 def get_all_combs(minimum: int = 0, maximum: int = 4, start_list=[], just_once=True, length: int = 4,
-                  prohibited: List[int] = []) -> Iterable[
-    List[int]]:
+                  prohibited: List[int] = []) -> Iterable[List[int]]:
     for i1 in (x for x in range(min(minimum, maximum), max(maximum, minimum) + 1, 1) if x not in prohibited):
         curr_list = start_list.copy()
         curr_list.append(i1)
         cur_prohibited = prohibited.copy()
         if just_once:
             cur_prohibited.append(i1)
-        if length <= 0:
+        if length <= 1:
             yield curr_list.copy()
         else:
             for x in get_all_combs(minimum=minimum,
@@ -185,12 +192,19 @@ def get_all_combs(minimum: int = 0, maximum: int = 4, start_list=[], just_once=T
 class Iterator:
     def __init__(self, init_it: int = 0):
         self.__it: int = init_it
+        self.__init_it: int = init_it
+
+    def reset(self):
+        self.__it = self.__init_it
 
     def increase(self, by: int = 1):
         self.__it += by
 
     def get(self):
         return self.__it
+
+    def __str__(self):
+        return f"Iterator at {self.__it}"
 
 
 def ggt(a, b):
@@ -202,3 +216,22 @@ def ggt(a, b):
 
 def kgv(a, b):
     return (a * b) / ggt(a, b)
+
+
+def get_all_combinations(orig: List[List[object]]) -> Iterable[List[object]]:
+    if len(orig) > 0:
+        for l in orig[0]:
+            for x in get_all_combinations(orig[1:]):
+                yield [l] + x
+    else:
+        yield []
+
+
+from dataclasses import dataclass, field
+from typing import Any
+
+
+@dataclass(order=True)
+class PrioritizedItem:
+    priority: int
+    item: Any = field(compare=False)
