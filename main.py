@@ -1,21 +1,24 @@
 from os import listdir
 from os.path import isdir, dirname, join
+from sys import stdout
 from time import time as time
 
 from helper import DownloadFailedError
 
-AUTOMATIC = True
+AUTOMATIC = False
 
 
-def custom_print(*data, **options):
+def custom_print(*data, new_line=True):
     if not AUTOMATIC:
-        print(*data, **options)
+        stdout.write(", ".join((str(x) for x in data)))
+        if new_line:
+            stdout.write("\n")
     pass
 
 
 if __name__ == "__main__":
     direct = dirname(__file__)
-    for fold in sorted(x for x in listdir(direct) if isdir(join(direct, x)) if str(x).startswith("Day14")):
+    for fold in sorted(x for x in listdir(direct) if isdir(join(direct, x)) if str(x).startswith("Day16")):
         try:
             # noinspection PyUnresolvedReferences
             tmp = __import__("%s.task" % fold).task
