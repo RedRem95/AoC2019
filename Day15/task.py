@@ -163,7 +163,7 @@ def get_map(inp: Union[List[int], str, CustomList], machine: IntMachine, print_s
     return global_map
 
 
-def draw_map(ship_map: Dict[Point, MapObject], robot_pos: Optional[Point] = None,
+def draw_map(ship_map: Dict[Point, MapObject], robot_pos: Optional[Point] = None, robot_type: Type[MapObject] = Robot,
              default_object: Union[MapObject, str] = HallWay(), gone_way: List[Point] = None, point_indexes=None) -> \
         List[List[str]]:
     x_l = [x.get_x() for x in [x for x in ship_map.keys()] + ([robot_pos] if isinstance(robot_pos, Point) else [])]
@@ -189,12 +189,13 @@ def draw_map(ship_map: Dict[Point, MapObject], robot_pos: Optional[Point] = None
         except Exception:
             return default_object
 
-    return [[str(Robot() if robot_pos is not None and Point(x, y).__eq__(robot_pos) else map_to_draw.get(Point(x, y),
-                                                                                                         get_hallway(
-                                                                                                             Point(x,
-                                                                                                                   y))))
-             for x in range(min_x - 1, max_x + 2, +1)] for y in
-            range(max_y + 1, min_y - 2, -1)]
+    return [
+        [str(robot_type() if robot_pos is not None and Point(x, y).__eq__(robot_pos) else map_to_draw.get(Point(x, y),
+                                                                                                          get_hallway(
+                                                                                                              Point(x,
+                                                                                                                    y))))
+         for x in range(min_x - 1, max_x + 2, +1)] for y in
+        range(max_y + 1, min_y - 2, -1)]
 
 
 def fewest_steps(ship_map: Dict[Point, MapObject], start_point: Point = Point(0, 0),
