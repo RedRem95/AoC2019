@@ -1,6 +1,6 @@
 from Day06 import INPUT
 
-custom_print = print
+from main import custom_print
 
 class SpaceObject:
     __space_objects = {}
@@ -103,9 +103,7 @@ def parse():
         SpaceObject.get_space_object(moon).set_orbit(SpaceObject.get_space_object(planet))
 
 
-def main(printer=print):
-    global custom_print
-    custom_print = printer
+def main():
     parse()
     custom_print("\tA1:")
     custom_print("\t\tAll the space objects:",

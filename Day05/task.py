@@ -4,10 +4,9 @@ from Day02.task import default_int_machine, work_code, Mode
 from Day05 import INPUT
 from helper import Iterator
 from main import AUTOMATIC
+from main import custom_print
 
 my_machine = default_int_machine.copy()
-
-custom_print = print
 
 
 def read_int(message: str = "Give int pls: "):
@@ -66,8 +65,7 @@ my_mode_machine.register_action(7, less_than)
 my_mode_machine.register_action(8, equal_with)
 
 
-def main(printer=print):
-    global custom_print
+def main():
     used_machine1 = my_machine
     used_machine2 = my_mode_machine.copy()
 
@@ -89,7 +87,6 @@ def main(printer=print):
         used_machine1.register_action(3, read_memory)
         used_machine2.register_action(3, read_memory)
 
-    custom_print = printer
     custom_print("A1")
     work_code(INPUT, used_machine1)
     custom_print("A2")

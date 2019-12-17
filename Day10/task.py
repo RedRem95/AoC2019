@@ -2,8 +2,7 @@ from typing import List, Iterable
 
 from Day10 import INPUT
 from helper import Point, direction, ggt, angle, real_dist
-
-custom_printer = print
+from main import custom_print as custom_printer
 
 ASTEROID_SYMBOL = "#"
 
@@ -53,9 +52,7 @@ def vaporization(station: Asteroid, targets: Iterable[Asteroid]) -> Iterable[Ast
             targets_in_line[laser_fire] = targets_in_laser[1:]
 
 
-def main(printer=print):
-    global custom_printer
-    custom_printer = printer
+def main():
     asteroids_list = list(create_asteroids(INPUT))
     custom_printer("A1")
     asteroid_with_partner = ((x, len(set([x.direction(y) for y in asteroids_list if x is not y]))) for x in

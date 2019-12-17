@@ -9,7 +9,7 @@ from helper import get_all_combs, Iterator
 
 my_mode_machine = my_mode_machine.copy()
 
-custom_printer = print
+from main import custom_print as custom_printer
 
 
 class Signal:
@@ -117,9 +117,7 @@ def check_amplifier_rep(code: str, machine: IntMachine, phases: List[int] = [], 
     return queues[0].get()
 
 
-def main(printer: print):
-    global custom_printer
-    custom_printer = printer
+def main():
     max_amp = 0
     max_comp = []
     custom_printer("A1")

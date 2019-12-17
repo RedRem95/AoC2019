@@ -38,6 +38,13 @@ def phase_shift(phase: List[int], base_pattern: List[int], phases: int, numpy_ve
 
     del phase_tmp
 
+    sum_multiplier = (init_phase_len * phase_repetition) / len(phase)
+
+    if sum_multiplier != int(sum_multiplier):
+        raise SystemError("Something went horribly wrong")
+
+    sum_multiplier = int(sum_multiplier)
+
     for i in range(phases):
         now_time = np.average(times if len(times) > 0 else [0])
         if now_time != 0:
@@ -52,11 +59,11 @@ def phase_shift(phase: List[int], base_pattern: List[int], phases: int, numpy_ve
             for k in range(len(phase)):
                 pattern = np.vectorize(lambda x: base_pattern[int((x + 1) / (k + 1)) % len(base_pattern)])(
                     np.arange(len(phase)))
-                new_phase.append(int(str(np.sum(np.multiply(phase, pattern)))[-1]))
+                new_phase.append(int(str(np.sum(np.multiply(phase, pattern)) * sum_multiplier)[-1]))
         else:
             new_phase = [int(str(
-                sum(phase[j] * base_pattern[int((j + 1) / (k + 1)) % len(base_pattern)] for j in range(len(phase))))[
-                                 -1]) for k in range(len(phase))]
+                sum(phase[j] * base_pattern[int((j + 1) / (k + 1)) % len(base_pattern)] for j in
+                    range(len(phase))) * sum_multiplier)[-1]) for k in range(len(phase))]
         end_time = time()
         times.append((end_time - start_time))
         phase = new_phase
@@ -71,7 +78,7 @@ def phase_shift(phase: List[int], base_pattern: List[int], phases: int, numpy_ve
     return phase
 
 
-def main(printer=print):
+def main():
     count_shifts = 100
     shifted_phase = phase_shift(INPUT, [0, 1, 0, -1], count_shifts, numpy_version=False, phase_repetition=1)
     custom_printer("A1")
@@ -80,7 +87,11 @@ def main(printer=print):
         f"First {count_digits} digits of new shift are {''.join((str(x) for x in shifted_phase[:count_digits]))}")
     if not AUTOMATIC:
         custom_printer("\nA2")
-        shifted_phase = phase_shift(INPUT, [0, 1, 0, -1], count_shifts, numpy_version=True, phase_repetition=10000)
+        use_input = [INPUT[x % len(INPUT)] for x in range(len(INPUT) * 10000)]
+        shifted_phase = phase_shift(INPUT, [0, 1, 0, -1], count_shifts, numpy_version=False, phase_repetition=10000)
         offset = int("".join((str(x) for x in INPUT[:7])))
+        custom_printer(offset)
+        custom_printer(len(shifted_phase))
+        custom_printer(shifted_phase)
         custom_printer(
             f"First {count_digits} digits of new shift are {''.join((str(x) for x in shifted_phase[offset:offset + count_digits]))}")

@@ -5,8 +5,7 @@ from Day02.task import IntMachine, Mode, CustomList, work_code
 from Day09.task import my_machine
 from Day13 import INPUT
 from helper import Iterator
-
-custom_printer = print
+from main import custom_print as custom_printer, AUTOMATIC
 
 
 class GameBlock(ABC):
@@ -169,7 +168,10 @@ class Game:
 
     def __str__(self):
         game_part = '\n'.join(''.join(str(el) for el in line) for line in self.get_matrix())
-        return f"{game_part}\nScore: {self.__score}"
+        return f"{game_part}\nScore: {self.get_score()}"
+
+    def get_score(self) -> int:
+        return self.__score
 
 
 def create_game(code: Union[List[int], str, CustomList], machine: IntMachine, play: bool = False,
@@ -223,10 +225,7 @@ def create_game(code: Union[List[int], str, CustomList], machine: IntMachine, pl
     return ret
 
 
-def main(printer=print):
-    global custom_printer
-    custom_printer = printer
-
+def main():
     game = create_game(INPUT, my_machine, play=False)
 
     custom_printer(
@@ -236,4 +235,6 @@ def main(printer=print):
 
     new_input = "2" + INPUT[1:]
 
-    game = create_game(new_input, my_machine, play=True, auto=True)
+    game = create_game(new_input, my_machine, play=not AUTOMATIC, auto=True)
+
+    custom_printer(f"Final Score: {game.get_score()}")

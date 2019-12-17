@@ -6,8 +6,7 @@ from Day02.task import IntMachine, CustomList, work_code, Mode
 from Day09.task import my_machine
 from Day11 import INPUT
 from helper import Point, Iterator
-
-custom_printer = print
+from main import custom_print as custom_printer
 
 
 class HullRobot:
@@ -123,9 +122,7 @@ class HullRobot:
         return img
 
 
-def main(printer=print):
-    global custom_printer
-    custom_printer = printer
+def main():
     custom_printer("A1")
     main_painter = HullRobot(machine=my_machine.copy(), default_color=0)
     main_painter.deploy_robot(INPUT, print_steps=False)

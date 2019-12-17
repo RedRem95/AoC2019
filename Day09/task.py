@@ -1,13 +1,11 @@
 from typing import List, Tuple, Callable
 
+from Day02.task import Mode, work_code, CustomList
+from Day05.task import my_mode_machine
 from Day09 import INPUT
 from helper import Iterator
 from main import AUTOMATIC
-
-custom_printer = print
-
-from Day05.task import my_mode_machine
-from Day02.task import Mode, work_code, CustomList
+from main import custom_print as custom_printer
 
 my_machine = my_mode_machine.copy()
 
@@ -65,10 +63,7 @@ my_machine.register_mode(2, RelativeMode(__rel_base))
 my_machine.register_action(9, __adj_base)
 
 
-def main(printer=print):
-    global custom_printer
-    custom_printer = printer
-
+def main():
     used_machine1 = my_machine.copy()
     used_machine2 = my_machine.copy()
 

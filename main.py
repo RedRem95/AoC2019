@@ -7,6 +7,8 @@ from helper import DownloadFailedError
 
 AUTOMATIC = False
 
+working_day = 15
+
 
 def custom_print(*data, new_line=True):
     if not AUTOMATIC:
@@ -18,7 +20,8 @@ def custom_print(*data, new_line=True):
 
 if __name__ == "__main__":
     direct = dirname(__file__)
-    for fold in sorted(x for x in listdir(direct) if isdir(join(direct, x)) if str(x).startswith("Day14")):
+    day_filter = f"Day{working_day:02d}" if working_day is not None and not AUTOMATIC else "Day"
+    for fold in sorted(x for x in listdir(direct) if isdir(join(direct, x)) if str(x).startswith(day_filter)):
         try:
             # noinspection PyUnresolvedReferences
             tmp = __import__("%s.task" % fold).task

@@ -10,8 +10,7 @@ from Day11.task import my_machine
 from Day15 import INPUT
 from helper import Point, Iterator, PrioritizedItem, get_all_combs
 from main import AUTOMATIC
-
-custom_printer = print
+from main import custom_print as custom_printer
 
 
 class MapObject(ABC):
@@ -164,7 +163,8 @@ def get_map(inp: Union[List[int], str, CustomList], machine: IntMachine, print_s
 
 
 def draw_map(ship_map: Dict[Point, MapObject], robot_pos: Optional[Point] = None, robot_type: Type[MapObject] = Robot,
-             default_object: Union[MapObject, str] = HallWay(), gone_way: List[Point] = None, point_indexes=None) -> \
+             default_object: Union[MapObject, str] = HallWay(), gone_way: List[Point] = None,
+             point_indexes: Dict[Point, Union[int, str, MapObject]] = None) -> \
         List[List[str]]:
     x_l = [x.get_x() for x in [x for x in ship_map.keys()] + ([robot_pos] if isinstance(robot_pos, Point) else [])]
     y_l = [x.get_y() for x in [x for x in ship_map.keys()] + ([robot_pos] if isinstance(robot_pos, Point) else [])]
@@ -182,10 +182,12 @@ def draw_map(ship_map: Dict[Point, MapObject], robot_pos: Optional[Point] = None
 
     def get_hallway(p: Point):
         try:
-            if isinstance(gone_way, list):
-                return str(gone_way.index(p))[-1]
+            ret = None
+            if isinstance(gone_way, list) and p in gone_way:
+                ret = gone_way.index(p)
             elif isinstance(point_indexes, dict):
-                return str(point_indexes[p])[-1]
+                ret = point_indexes[p]
+            return str(ret)[-1] if ret is not None else default_object
         except Exception:
             return default_object
 
@@ -233,9 +235,7 @@ def fewest_steps(ship_map: Dict[Point, MapObject], start_point: Point = Point(0,
     return max((x for x in tested_points.values()))
 
 
-def main(printer=print):
-    global custom_printer
-    custom_printer = printer
+def main():
     if not AUTOMATIC:
         custom_printer("Robot gets started to draw a map")
         created_map = get_map(INPUT, my_machine, print_steps=False, break_at_tank=True, thread_count=cpu_count() - 1)

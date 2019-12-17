@@ -2,8 +2,7 @@ from typing import List
 
 from Day04 import INPUT
 from helper import partner_check, only_increase, int_to_iter, atleast_one_pair_check
-
-custom_print = print
+from main import custom_print
 
 
 def create_passwords(min_pw=min(*INPUT), max_pw=max(*INPUT)) -> List:
@@ -15,8 +14,6 @@ def create_passwords_2(min_pw=min(*INPUT), max_pw=max(*INPUT)) -> List:
             atleast_one_pair_check(int_to_iter(i)) and only_increase(int_to_iter(i))]
 
 
-def main(printer=print):
-    global custom_print
-    custom_print = printer
+def main():
     custom_print("Found %s passwords A1" % len(create_passwords()))
     custom_print("Found %s passwords A2" % len(create_passwords_2()))

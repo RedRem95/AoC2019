@@ -3,8 +3,7 @@ from typing import List, Callable, Tuple, Dict, Iterable, Union
 
 from Day02 import INPUT
 from helper import int_to_iter
-
-custom_print = print
+from main import custom_print
 
 
 class CustomList:
@@ -203,9 +202,7 @@ def calc_output(code, noun, verb):
     return work_code(code)[0]
 
 
-def main(printer=print):
-    global custom_print
-    custom_print = printer
+def main():
     code = parse_int_code(INPUT)
     custom_print("A1:", calc_output(code, 12, 2))
     searched_output = 19690720

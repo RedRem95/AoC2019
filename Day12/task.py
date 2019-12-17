@@ -2,8 +2,7 @@ from typing import Iterable, List, Tuple, Dict
 
 from Day12 import INPUT
 from helper import kgv
-
-custom_printer = print
+from main import custom_print as custom_printer
 
 
 class Moon:
@@ -147,10 +146,7 @@ def simulate(moons: List[Moon], steps=None):
         custom_printer(f"Sum pot energ: {sum(x.get_pot_energ() for x in moons)}")
 
 
-def main(printer=print):
-    return
-    global custom_printer
-    custom_printer = printer
+def main():
     simulate([Moon(x, name=f"Moon {i + 1}") for i, x in enumerate(INPUT)], 1000)
     custom_printer(
         f"After {int(simulate([Moon(x, name=f'Moon {i + 1}') for i, x in enumerate(INPUT)]))} steps history only repeats")

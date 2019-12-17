@@ -2,8 +2,8 @@ from typing import List, Dict, Tuple
 
 from Day03 import INPUT
 from helper import Point, line_intersect, manhattan_distance, real_dist
+from main import custom_print
 
-custom_print = print
 
 def create_points(way: str, origin: Point = Point(0, 0)) -> List[Point]:
     ret: List[Point] = [origin.copy()]
@@ -25,9 +25,7 @@ def create_points(way: str, origin: Point = Point(0, 0)) -> List[Point]:
     return ret
 
 
-def main(printer=print):
-    global custom_print
-    custom_print = printer
+def main():
     origin = Point(0, 0)
     points = [create_points(x, origin) for x in INPUT[:2]]
     cross: Dict[Point, Tuple[int, int]] = {}
