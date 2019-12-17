@@ -89,11 +89,9 @@ class HullRobot:
         work_code(code, deploy_machine)
 
     def get_work(self, color_codes: Dict[int, object] = {0: ".", 1: "#"},
-                 direction_codes: Dict[int, object] = {1: "^", 2: ">", 3: "v", 4: "<"}) -> Iterable[
-        Iterable[object]]:
-        x_l, y_l = [x.get_x() for x in self.panel.keys()] + [self.position.get_x()], [x.get_y() for x in
-                                                                                      self.panel.keys()] + [
-                       self.position.get_y()]
+                 direction_codes: Dict[int, object] = {1: "^", 2: ">", 3: "v", 4: "<"}) -> Iterable[Iterable[object]]:
+        x_l = [x.get_x() for x in self.panel.keys()] + [self.position.get_x()]
+        y_l = [x.get_y() for x in self.panel.keys()] + [self.position.get_y()]
         min_x = min(x_l)
         max_x = max(x_l)
         min_y = min(y_l)
@@ -103,7 +101,9 @@ class HullRobot:
                 self.get_color(Point(x, y))] for x in range(min_x, max_x + 1, 1))
 
     def draw_work(self, color_codes={0: ".", 1: "#"}, direction_codes={1: "^", 2: ">", 3: "v", 4: "<"}):
+        custom_printer("-" * 25)
         custom_printer("\n".join("".join((str(j) for j in i)) for i in self.get_work(color_codes, direction_codes)))
+        custom_printer("-" * 25)
 
     def draw_bmp(self, colors: Dict[int, Tuple[int, int, int]] = {1: (255, 255, 255), 0: (0, 0, 0)},
                  robot_color=(255, 0, 0)) -> Image:
@@ -126,6 +126,7 @@ def main():
     custom_printer("A1")
     main_painter = HullRobot(machine=my_machine.copy(), default_color=0)
     main_painter.deploy_robot(INPUT, print_steps=False)
+    main_painter.draw_bmp().save("Funny_hull.png", "PNG")
     custom_printer(f"Robot painted {main_painter.get_painted_panes()} panels on its way")
 
     custom_printer("A2")

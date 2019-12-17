@@ -138,7 +138,7 @@ def __create_map_by_order(big):
 def get_map(inp: Union[List[int], str, CustomList], machine: IntMachine, print_steps=False, break_at_tank=True,
             initial_map: Dict[Point, MapObject] = {}, thread_count: int = cpu_count()) -> Dict[Point, MapObject]:
     global_map: Dict[Point, MapObject] = {}
-    orders = [x for x in get_all_combs(minimum=1, maximum=4, just_once=True, length=4)]
+    orders = [x for x in get_all_combs(minimum=1, maximum=4, just_once=True, length=4)][:]
     tmpl1 = "Starting  order {i:%s}/%s ({prec:6.2f}%s) -> {order}" % (len(str(len(orders))), len(orders), "%")
     tmpl2 = "Finishing order {i:%s}/%s ({prec:6.2f}%s) -> {order}" % (len(str(len(orders))), len(orders), "%")
 
@@ -201,9 +201,8 @@ def draw_map(ship_map: Dict[Point, MapObject], robot_pos: Optional[Point] = None
 
 
 def fewest_steps(ship_map: Dict[Point, MapObject], start_point: Point = Point(0, 0),
-                 target_point: Optional[Point] = None,
-                 evil_objects: List[Type[MapObject]] = [Wall], tested_points: Dict[Point, int] = {}, current_index=0) -> \
-        Union[int, None]:
+                 target_point: Optional[Point] = None, evil_objects: List[Type[MapObject]] = [Wall],
+                 tested_points: Dict[Point, int] = {}, current_index=0, print_steps: bool = False) -> Union[int, None]:
     if start_point == target_point:
         return 0
     if (start_point in tested_points and current_index > tested_points[start_point]) or any(
@@ -219,6 +218,8 @@ def fewest_steps(ship_map: Dict[Point, MapObject], start_point: Point = Point(0,
     pq: Queue[PrioritizedItem] = PriorityQueue()
     pq.put(PrioritizedItem(it.get(), start_point))
 
+    tested_points[start_point] = it.get()
+
     while not pq.empty():
         testing_point = pq.get()
         index, testing_point = testing_point.priority, testing_point.item
@@ -231,16 +232,50 @@ def fewest_steps(ship_map: Dict[Point, MapObject], start_point: Point = Point(0,
             if tp not in tested_points or tested_points[tp] > index:
                 pq.put(PrioritizedItem(index, tp))
                 tested_points[tp] = index
+        if print_steps:
+            custom_printer(
+                "\n".join(("".join((str(x) for x in l)) for l in
+                           draw_map(ship_map, robot_pos=Point(0, 0), point_indexes=tested_points))))
 
     return max((x for x in tested_points.values()))
+
+
+def get_good_path(point_indexes: Dict[Point, int], origin: Point, target: Point) -> Dict[Point, Union[str, MapObject]]:
+    ret: Dict[Point, Union[str, MapObject]] = {}
+
+    previous_point = target
+    current_point = target
+
+    while not current_point == origin:
+        test_points = [x(current_point) for x in direction_ops.values()]
+        previous_point = current_point
+        best_point = None
+        best_index = 0
+        for tp in (x for x in test_points if x in point_indexes):
+            if best_point is None or best_index > point_indexes[tp]:
+                best_point = tp
+                best_index = point_indexes[tp]
+        if best_point is None:
+            raise SystemError("Thats not good")
+        if not current_point is target:
+            ret[current_point] = "└"
+            ret[current_point] = "┐"
+            ret[current_point] = "┘"
+            ret[current_point] = "┌"
+            ret[current_point] = "│"
+            ret[current_point] = "─"
+            ret[current_point] = "X"
+        current_point = best_point
+
+    return ret
 
 
 def main():
     if not AUTOMATIC:
         custom_printer("Robot gets started to draw a map")
         created_map = get_map(INPUT, my_machine, print_steps=False, break_at_tank=True, thread_count=cpu_count() - 1)
-        custom_printer("Resulting map")
-        custom_printer("\n".join(("".join((str(x) for x in l)) for l in draw_map(created_map, robot_pos=Point(0, 0)))))
+        # custom_printer("Resulting map")
+        # custom_printer("\n".join(("".join((str(x) for x in l)) for l in draw_map(created_map, robot_pos=Point(0, 0)))))
         point_indexes = {}
         shortes_way = fewest_steps(ship_map=created_map, start_point=Point(0, 0),
                                    target_point=[x for x, y in created_map.items() if isinstance(y, Tank)][0],
@@ -248,6 +283,12 @@ def main():
         if shortes_way is None:
             custom_printer("You cant get to the tank")
         else:
+            good_path = get_good_path(point_indexes=point_indexes,
+                                      origin=Point(0, 0),
+                                      target=[x for x, y in created_map.items() if isinstance(y, Tank)][0])
+            custom_printer(
+                "\n".join(("".join((str(x) for x in l)) for l in
+                           draw_map(created_map, robot_pos=Point(0, 0), point_indexes=good_path))))
             custom_printer(f"Fewest steps to the tank are {shortes_way}")
 
         point_indexes = {}
