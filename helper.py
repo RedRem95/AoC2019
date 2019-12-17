@@ -60,6 +60,18 @@ class Point:
         self.__y = y
         return self
 
+    def point_up(self):
+        return self.copy().set_y(self.get_y() + 1)
+
+    def point_down(self):
+        return self.copy().set_y(self.get_y() - 1)
+
+    def point_right(self):
+        return self.copy().set_x(self.get_x() + 1)
+
+    def point_left(self):
+        return self.copy().set_x(self.get_x() - 1)
+
     def __str__(self):
         return "<%s,%s>" % (self.__x, self.__y)
 
@@ -189,7 +201,7 @@ def get_all_combs(minimum: int = 0, maximum: int = 4, start_list=[], just_once=T
                 yield x
 
 
-class Iterator:
+class IntWrapper:
     def __init__(self, init_it: int = 0):
         self.__it: int = init_it
         self.__init_it: int = init_it
@@ -202,6 +214,20 @@ class Iterator:
 
     def get(self):
         return self.__it
+
+    def set(self, value):
+        self.__it = value
+
+    def __str__(self):
+        return f"Integer at {self.__it}"
+
+
+class Iterator(IntWrapper):
+    def __init__(self, init_it: int = 0):
+        super().__init__(init_it)
+
+    def set(self, value):
+        raise NotImplemented("Iterators cant set their value")
 
     def __str__(self):
         return f"Iterator at {self.__it}"

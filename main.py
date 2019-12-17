@@ -18,7 +18,7 @@ def custom_print(*data, new_line=True):
 
 if __name__ == "__main__":
     direct = dirname(__file__)
-    for fold in sorted(x for x in listdir(direct) if isdir(join(direct, x)) if str(x).startswith("Day16")):
+    for fold in sorted(x for x in listdir(direct) if isdir(join(direct, x)) if str(x).startswith("Day14")):
         try:
             # noinspection PyUnresolvedReferences
             tmp = __import__("%s.task" % fold).task
@@ -26,7 +26,7 @@ if __name__ == "__main__":
             print(fold)
             custom_print('-' * 4)
             start_time = time()
-            tmp.main(printer=custom_print)
+            tmp.main()
             end_time = time()
             print('=' * 4)
             print("Time", "{time:10.3f}ms".format(time=(end_time - start_time) * 1000))

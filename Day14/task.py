@@ -1,12 +1,13 @@
 from math import ceil
 from multiprocessing import Pool
-from multiprocessing import cpu_count
+from time import time
 from typing import Union, Iterable, Dict, Callable, List
 
-from Day14 import INPUT
-from main import AUTOMATIC
+import numpy as np
 
-custom_printer = print
+from Day14 import INPUT
+from helper import IntWrapper
+from main import custom_print as custom_printer
 
 if False:
     INPUT = [
@@ -118,38 +119,55 @@ def test_combinations(reactions: Iterable[Union[str, Reaction]], store: Dict[str
     yield store
 
 
-def main(printer=print):
-    global custom_printer
-    custom_printer = printer
-
+def main():
     target = "FUEL"
     origin = "ORE"
-    target_count = 1
+
+    target_count = IntWrapper(1)
 
     class TargetMaterial(Material):
         def __init__(self, name, count):
             super().__init__(name)
             self.__count = count
 
-        def get_count_of_me(self):
-            return self.__count
+        def get_count_of_me(self, **kwargs):
+            return self.__count.get()
 
     FUEL = TargetMaterial(target, target_count)
 
-    origin_count = create_materials(INPUT, FUEL)[origin].get_count_of_me()
-    custom_printer(f"To create {target_count} {target} you need {origin_count} {origin}")
+    MATERIALS = create_materials(INPUT, FUEL)
+
+    origin_count = MATERIALS[origin].get_count_of_me()
+    custom_printer("A1")
+    custom_printer(f"To create {target_count.get()} {target} you need {origin_count} {origin}")
+    custom_printer("\nA2")
 
     found_origin = 1000000000000
-    found_origin = 371695
-    # curr_max = create_materials(INPUT, TargetMaterial(target, 1/found_origin))[origin].get_count_of_me(lambda v: float(v))
-    curr_max = -1
+    curr_max = 0
 
-    if not AUTOMATIC:
-        curr_max = 0
+    target_count.set(curr_max + 1)
 
-        for x in test_combinations(reactions=INPUT, store={origin: found_origin}, thread_count=cpu_count() - 1):
-            if x.get(target, 0) > curr_max:
-                custom_printer(f"Found new maximum for {target} with {x.get(target, 0)}")
-                curr_max = x.get(target, 0)
+    times = []
+    max_p_string = 1
 
-    custom_printer(f"Best production: {curr_max}")
+    while MATERIALS[origin].get_count_of_me() < found_origin:
+        start_time = time()
+        curr_max = target_count.get()
+        if target_count.get() % max(1, int(found_origin / 10000000)) == 0:
+            now_time = np.average(times if len(times) > 0 else [0])
+            if now_time != 0:
+                now_time = 1 / now_time
+            needed_mats = MATERIALS[origin].get_count_of_me()
+            p_str = f"\r{curr_max:13.0f} still ok. It needs {needed_mats:13.0f}/{found_origin} {origin} ({(needed_mats / found_origin) * 100:6.2f}%) {now_time:.2f}ops"
+            max_p_string = max(max_p_string, len(p_str))
+            custom_printer(("{p_str:%s}" % max_p_string).format(p_str=p_str), new_line=False)
+        target_count.increase()
+        end_time = time()
+        times.append(end_time - start_time)
+
+    target_count.set(curr_max)
+
+    needed_mats = MATERIALS[origin].get_count_of_me()
+
+    p_str = f"\rWith {found_origin} you can create {curr_max} {target}. You will use {needed_mats}/{found_origin} {origin} ({(needed_mats / found_origin) * 100:6.2f}%)"
+    custom_printer(("{p_str:%s}" % max_p_string).format(p_str=p_str))
