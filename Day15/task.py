@@ -3,7 +3,7 @@ from multiprocessing import cpu_count
 from multiprocessing.pool import Pool
 from queue import PriorityQueue, Queue
 from time import time
-from typing import List, Callable, Tuple, Dict, Union, Optional, Type
+from typing import List, Callable, Tuple, Dict, Union, Optional
 
 from Day02.task import Mode, IntMachine, work_code, CustomList
 from Day11.task import my_machine
@@ -162,7 +162,8 @@ def get_map(inp: Union[List[int], str, CustomList], machine: IntMachine, print_s
     return global_map
 
 
-def draw_map(ship_map: Dict[Point, MapObject], robot_pos: Optional[Point] = None, robot_type: Type[MapObject] = Robot,
+def draw_map(ship_map: Dict[Point, MapObject], robot_pos: Optional[Point] = None,
+             robot: Union[MapObject, str] = Robot(),
              default_object: Union[MapObject, str] = HallWay(), gone_way: List[Point] = None,
              point_indexes: Dict[Point, Union[int, str, MapObject]] = None) -> \
         List[List[str]]:
@@ -192,17 +193,21 @@ def draw_map(ship_map: Dict[Point, MapObject], robot_pos: Optional[Point] = None
             return default_object
 
     return [
-        [str(robot_type() if robot_pos is not None and Point(x, y).__eq__(robot_pos) else map_to_draw.get(Point(x, y),
-                                                                                                          get_hallway(
-                                                                                                              Point(x,
-                                                                                                                    y))))
-         for x in range(min_x - 1, max_x + 2, +1)] for y in
-        range(max_y + 1, min_y - 2, -1)]
+        [str(robot if robot_pos is not None and Point(x, y).__eq__(robot_pos) else map_to_draw.get(Point(x, y),
+                                                                                                   get_hallway(
+                                                                                                       Point(x, y))))
+         for x in range(min_x - 1, max_x + 2, +1)] for y in range(max_y + 1, min_y - 2, -1)]
 
 
 def fewest_steps(ship_map: Dict[Point, MapObject], start_point: Point = Point(0, 0),
-                 target_point: Optional[Point] = None, evil_objects: List[Type[MapObject]] = [Wall],
-                 tested_points: Dict[Point, int] = {}, current_index=0, print_steps: bool = False) -> Union[int, None]:
+                 target_point: Optional[Point] = None, evil_objects=None, not_passable=None, tested_points=None,
+                 current_index=0, print_steps: bool = False) -> Union[int, None]:
+    if tested_points is None:
+        tested_points = {}
+    if not_passable is None:
+        not_passable = []
+    if evil_objects is None:
+        evil_objects = [Wall]
     if start_point == target_point:
         return 0
     if (start_point in tested_points and current_index > tested_points[start_point]) or any(
@@ -228,7 +233,8 @@ def fewest_steps(ship_map: Dict[Point, MapObject], start_point: Point = Point(0,
         index += 1
         test_points = [x(testing_point) for x in direction_ops.values()]
         for tp in (x for x in test_points if min_x <= x.get_x() <= max_x and min_y <= x.get_y() <= max_y and not any(
-                isinstance(ship_map[x], y) if x in ship_map else False for y in evil_objects)):
+                isinstance(ship_map[x], y) if x in ship_map else False for y in
+                evil_objects) and x not in not_passable):
             if tp not in tested_points or tested_points[tp] > index:
                 pq.put(PrioritizedItem(index, tp))
                 tested_points[tp] = index
@@ -237,7 +243,7 @@ def fewest_steps(ship_map: Dict[Point, MapObject], start_point: Point = Point(0,
                 "\n".join(("".join((str(x) for x in l)) for l in
                            draw_map(ship_map, robot_pos=Point(0, 0), point_indexes=tested_points))))
 
-    return max((x for x in tested_points.values()))
+    return None
 
 
 def get_good_path(point_indexes: Dict[Point, int], origin: Point, target: Point) -> Dict[Point, Union[str, MapObject]]:
@@ -286,9 +292,8 @@ def main():
             good_path = get_good_path(point_indexes=point_indexes,
                                       origin=Point(0, 0),
                                       target=[x for x, y in created_map.items() if isinstance(y, Tank)][0])
-            custom_printer(
-                "\n".join(("".join((str(x) for x in l)) for l in
-                           draw_map(created_map, robot_pos=Point(0, 0), point_indexes=good_path))))
+            custom_printer("\n".join(("".join((str(x) for x in l)) for l in
+                                      draw_map(created_map, robot_pos=Point(0, 0), point_indexes=good_path))))
             custom_printer(f"Fewest steps to the tank are {shortes_way}")
 
         point_indexes = {}

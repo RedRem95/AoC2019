@@ -71,7 +71,7 @@ class World:
         return
 
     def draw_map(self, print_crossways_special: Union[str, None] = None) -> List[List[str]]:
-        return draw_map(self.__world, robot_pos=self.__robot_pos, robot_type=Robot, default_object=Space(),
+        return draw_map(self.__world, robot_pos=self.__robot_pos, default_object=Space(),
                         gone_way=None,
                         point_indexes=None if print_crossways_special is None else {x: print_crossways_special for x in
                                                                                     self.get_crossways(

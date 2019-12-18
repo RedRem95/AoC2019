@@ -75,6 +75,9 @@ class Point:
     def __str__(self):
         return "<%s,%s>" % (self.__x, self.__y)
 
+    def __repr__(self):
+        return str(self)
+
     def copy(self):
         return Point(self.__x, self.__y)
 

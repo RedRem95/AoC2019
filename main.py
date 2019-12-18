@@ -7,7 +7,7 @@ from helper import DownloadFailedError
 
 AUTOMATIC = False
 
-working_day = 15
+working_day = 18
 
 
 def custom_print(*data, new_line=True):
