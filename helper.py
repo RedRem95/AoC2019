@@ -2,6 +2,8 @@ import inspect
 from math import sqrt, acos, pi
 from os import getenv
 from os.path import join, dirname, exists
+from queue import Queue, PriorityQueue
+from threading import Thread
 from typing import Union, List, Iterable
 
 import requests
@@ -211,9 +213,11 @@ class IntWrapper:
 
     def reset(self):
         self.__it = self.__init_it
+        return self
 
     def increase(self, by: int = 1):
         self.__it += by
+        return self
 
     def get(self):
         return self.__it
@@ -264,3 +268,53 @@ from typing import Any
 class PrioritizedItem:
     priority: int
     item: Any = field(compare=False)
+
+
+class TaskQueue(Queue):
+
+    def __init__(self, num_workers=1):
+        Queue.__init__(self)
+        self.num_workers = num_workers
+        self.start_workers()
+
+    def add_task(self, task, *args, **kwargs):
+        args = args or ()
+        kwargs = kwargs or {}
+        self.put((task, args, kwargs))
+
+    def start_workers(self):
+        for i in range(self.num_workers):
+            t = Thread(target=self.worker)
+            t.daemon = True
+            t.start()
+
+    def worker(self):
+        while True:
+            item, args, kwargs = self.get()
+            item(*args, **kwargs)
+            self.task_done()
+
+
+class PriorityTaskQueue(PriorityQueue):
+
+    def __init__(self, num_workers=1):
+        Queue.__init__(self)
+        self.num_workers = num_workers
+        self.start_workers()
+
+    def add_task(self, task, *args, **kwargs):
+        args = args or ()
+        kwargs = kwargs or {}
+        self.put((task, args, kwargs))
+
+    def start_workers(self):
+        for i in range(self.num_workers):
+            t = Thread(target=self.worker)
+            t.daemon = True
+            t.start()
+
+    def worker(self):
+        while True:
+            item, args, kwargs = self.get()
+            item(*args, **kwargs)
+            self.task_done()

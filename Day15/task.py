@@ -246,8 +246,9 @@ def fewest_steps(ship_map: Dict[Point, MapObject], start_point: Point = Point(0,
     return None
 
 
-def get_good_path(point_indexes: Dict[Point, int], origin: Point, target: Point) -> Dict[Point, Union[str, MapObject]]:
-    ret: Dict[Point, Union[str, MapObject]] = {}
+def get_good_path(point_indexes: Dict[Point, int], origin: Point, target: Point) -> List[
+    Tuple[Point, Union[str, MapObject]]]:
+    ret: List[Tuple[Point, Union[str, MapObject]]] = []
 
     previous_point = target
     current_point = target
@@ -264,16 +265,16 @@ def get_good_path(point_indexes: Dict[Point, int], origin: Point, target: Point)
         if best_point is None:
             raise SystemError("Thats not good")
         if not current_point is target:
-            ret[current_point] = "└"
-            ret[current_point] = "┐"
-            ret[current_point] = "┘"
-            ret[current_point] = "┌"
-            ret[current_point] = "│"
-            ret[current_point] = "─"
-            ret[current_point] = "X"
+            # ret.append((current_point, "└"))
+            # ret.append((current_point, "┐"))
+            # ret.append((current_point, "┘"))
+            # ret.append((current_point, "┌"))
+            # ret.append((current_point, "│"))
+            # ret.append((current_point, "─"))
+            ret.append((current_point, "X"))
         current_point = best_point
 
-    return ret
+    return [x for x in reversed(ret)]
 
 
 def main():
@@ -293,7 +294,7 @@ def main():
                                       origin=Point(0, 0),
                                       target=[x for x, y in created_map.items() if isinstance(y, Tank)][0])
             custom_printer("\n".join(("".join((str(x) for x in l)) for l in
-                                      draw_map(created_map, robot_pos=Point(0, 0), point_indexes=good_path))))
+                                      draw_map(created_map, robot_pos=Point(0, 0), point_indexes=dict(good_path)))))
             custom_printer(f"Fewest steps to the tank are {shortes_way}")
 
         point_indexes = {}

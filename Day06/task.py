@@ -106,8 +106,9 @@ def parse():
 def main():
     parse()
     custom_print("\tA1:")
-    custom_print("\t\tAll the space objects:",
-                 sum((len(x.get_all_orbits()) for x in SpaceObject.get_all_space_objects())))
+    custom_print("\t\tAll the space objects:", len(SpaceObject.get_all_space_objects()), sep=" ")
+    custom_print("\t\tAll the space orbits: ",
+                 sum((len(x.get_all_orbits()) for x in SpaceObject.get_all_space_objects())), sep=" ")
 
     all_the_ways = sorted(
         [x for x in SpaceObject.get_space_object("YOU").find_ways(SpaceObject.get_space_object("SAN"))],

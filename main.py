@@ -10,9 +10,9 @@ AUTOMATIC = False
 working_day = 18
 
 
-def custom_print(*data, new_line=True):
+def custom_print(*data, new_line=True, sep=", "):
     if not AUTOMATIC:
-        stdout.write(", ".join((str(x) for x in data)))
+        stdout.write(sep.join((str(x) for x in data)))
         if new_line:
             stdout.write("\n")
     pass

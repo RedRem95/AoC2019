@@ -1,11 +1,14 @@
 from abc import ABC
 from math import inf
 from queue import Queue, PriorityQueue
+from time import time
 from typing import List, Dict, Tuple
 
-from Day15.task import MapObject, Wall as BasicWall, draw_map, fewest_steps
+import numpy as np
+
+from Day15.task import MapObject, Wall as BasicWall, draw_map, fewest_steps, get_good_path
 from Day18 import INPUT
-from helper import Point
+from helper import Point, Iterator
 from main import custom_print as custom_printer
 
 
@@ -93,7 +96,7 @@ def keys_in_map(my_map: Dict[Point, LabyrinthObject]) -> List[Tuple[Point, Key]]
     return [(x, y) for x, y in my_map.items() if isinstance(y, Key)]
 
 
-def get_way(my_map: Dict[Point, LabyrinthObject], player_pos, player) -> Tuple[List[Key], int]:
+def get_way(my_map: Dict[Point, LabyrinthObject], player_pos, player) -> Tuple[List[Key], int, List[List[Key]]]:
     keys_in_my_map = keys_in_map(my_map)
 
     if len(keys_in_my_map) <= 0:
@@ -139,52 +142,77 @@ def get_way(my_map: Dict[Point, LabyrinthObject], player_pos, player) -> Tuple[L
     pq: Queue[PrioritizedItem] = PriorityQueue()
     pq.put(PrioritizedItem(my_map.copy(), player_pos.copy(), player.copy(), 0))
 
+    times = []
+    viable_options = []
+
+    key_combs: Dict[Tuple[Key], int] = {}
+
+    it = Iterator(0).increase()
+
     while not pq.empty():
+
+        start_time = time()
+
+        if it.get() % 500 == 0 or True:
+            it.reset()
+            now_time = np.average(times if len(times) > 0 else [0])
+            if now_time != 0:
+                now_time = 1 / now_time
+            custom_printer(f"\rCalculating steps at {now_time:.2f}sps. Queue has {pq.queue.__len__()} items",
+                           new_line=False)
+        it.increase()
+
         pi = pq.get()
         work_map = pi.work_map
         work_player = pi.player
         work_player_pos = pi.pos
         work_steps = pi.steps
 
+        kt = tuple(work_player.get_keys())
+
+        if kt not in key_combs or key_combs[kt] > work_steps:
+            key_combs[kt] = work_steps
+        else:
+            continue
+
         keys_on_map = keys_in_map(work_map)
 
         if len(keys_on_map) <= 0:
+            viable_options.append(work_player.get_keys())
             if best_key_chain is None or best_steps > work_steps:
                 best_key_chain = work_player.get_keys()
                 best_steps = work_steps
-                custom_printer(f"Found new best way {best_steps} -> [{', '.join(str(x) for x in best_key_chain)}]")
+                custom_printer(f"\rFound new best way {best_steps} -> [{', '.join(str(x) for x in best_key_chain)}]")
+                it.reset()
         else:
             blocking = [y for y, x in work_map.items() if
                         isinstance(x, Door) and not x.does_open(*work_player.get_keys())]
             map_steps = {}
             fewest_steps(ship_map=work_map, start_point=work_player_pos, not_passable=blocking, tested_points=map_steps)
 
-            for key_point, key in keys_on_map:
+            reachable_keys = [(key_point, key, map_steps[key_point])
+                              for key_point, key in keys_on_map
+                              if key_point in map_steps]
+
+            for key_point, key, steps in reachable_keys:
+                go_way = [x[0] for x in get_good_path(map_steps, origin=work_player_pos, target=key_point)]
                 try:
-                    steps = map_steps[key_point]
-                    next_map = work_map.copy()
-                    next_map[key_point] = HallWay()
                     next_player = work_player.copy()
-                    next_player.add_key(key)
+                    next_map = work_map.copy()
+                    for kp, k in [(x[0], x[1]) for x in reachable_keys if not x[0] == key_point and x[0] in go_way] + [
+                        (key_point, key)]:
+                        next_player.add_key(k)
+                        next_map[kp] = HallWay()
                     pq.put(PrioritizedItem(next_map, key_point.copy(), next_player, work_steps + steps))
                 except KeyError:
                     pass
 
-    exit(2)
+        end_time = time()
+        times.append(end_time - start_time)
 
-    for key_point, key, steps in ((key_point, key, steps) for key_point, key, steps in steps_to_key if
-                                  steps is not None):
-        next_map = my_map.copy()
-        next_map[key_point] = HallWay()
-        next_player = player.copy()
-        next_player.add_key(key)
-        next_best_chain, next_best_steps = get_way(next_map, key_point, next_player)
-        if next_best_chain is not None and (best_key_chain is None or steps + next_best_steps < best_steps):
-            best_key_chain = [key] + next_best_chain
-            best_steps = steps + next_best_steps
-            # custom_printer(f"Found a new best way with {best_steps} => [{', '.join(str(x) for x in best_key_chain)}]")
+    custom_printer("\rQueue work success. All options evaluated")
 
-    return best_key_chain, best_steps
+    return best_key_chain, best_steps, viable_options
 
 
 def main():
@@ -195,6 +223,9 @@ def main():
     custom_printer("\n".join(("".join((str(x) for x in l)) for l in
                               draw_map(my_map, robot_pos=player_pos, robot=player, default_object=HallWay()))))
 
-    chain, steps = get_way(my_map, player_pos, player)
+    chain, steps, viable_options = get_way(my_map, player_pos, player)
+
+    custom_printer("All viable options:")
+    custom_printer("\n".join(f"[{', '.join(str(x) for x in l)}]" for l in viable_options))
 
     custom_printer(f"Best steps in map {steps}: [{', '.join(str(x) for x in chain)}]")
