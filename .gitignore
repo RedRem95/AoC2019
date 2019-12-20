@@ -96,6 +96,7 @@ __pycache__/
 
 #images
 *.png
+*.gif
 
 #inputs
 Day*/input.txt
