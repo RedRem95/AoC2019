@@ -1,5 +1,5 @@
 from os import listdir
-from os.path import isdir, dirname, join
+from os.path import isdir, dirname, join, abspath
 from sys import stdout
 from time import time as time
 
@@ -7,7 +7,7 @@ from helper import DownloadFailedError
 
 AUTOMATIC = False
 
-working_day = 18
+working_day = 11
 
 
 def custom_print(*data, new_line=True, sep=", "):
@@ -19,7 +19,7 @@ def custom_print(*data, new_line=True, sep=", "):
 
 
 if __name__ == "__main__":
-    direct = dirname(__file__)
+    direct = abspath(dirname(__file__))
     day_filter = f"Day{working_day:02d}" if working_day is not None and not AUTOMATIC else "Day"
     for fold in sorted(x for x in listdir(direct) if isdir(join(direct, x)) if str(x).startswith(day_filter)):
         try:

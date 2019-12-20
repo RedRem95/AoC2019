@@ -62,9 +62,12 @@ def main():
     custom_printer(f"Best Ateroid: {best_asteroid[0]} with {best_asteroid[1]} visible partners")
     custom_printer("A2")
     interesting_kills = [1, 2, 3, 10, 20, 50, 100, 199, 200, 201, 299, -1]
+    interesting_kills = [x for x in range(1, 299)] + [-1]
     kills = [x for x in vaporization(best_asteroid[0], (x for x in asteroids_list if x is not best_asteroid))]
     custom_printer("\n".join((
         f"The {'last' if x == -1 else f'{x}.'} asteroid to be vaporized is at {kills[x - 1 if x >= 0 else x].get_x()},{kills[x - 1 if x >= 0 else x].get_y()}"
         for x in interesting_kills if x - 1 < len(kills))))
     if len(kills) > 200:
         custom_printer(f"Answer: {kills[200 - 1].get_x() * 100 + kills[200 - 1].get_y()}")
+
+    custom_printer([(i + 1, x) for i, x in enumerate(kills) if x == Point(9, 5)][0])

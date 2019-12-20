@@ -4,7 +4,7 @@ from os import getenv
 from os.path import join, dirname, exists
 from queue import Queue, PriorityQueue
 from threading import Thread
-from typing import Union, List, Iterable
+from typing import Union, List, Iterable, Tuple
 
 import requests
 
@@ -62,6 +62,10 @@ class Point:
         self.__y = y
         return self
 
+    def set(self, point: Tuple[int, int]):
+        self.set_x(point[0])
+        self.set_y(point[1])
+
     def point_up(self):
         return self.copy().set_y(self.get_y() + 1)
 
@@ -91,6 +95,23 @@ class Point:
 
     def __ne__(self, other):
         return self.__eq__(other)
+
+    def __getitem__(self, key) -> int:
+        if key == 0:
+            return self.get_x()
+        if key == 1:
+            return self.get_y()
+        raise IndexError(f"Cant access {key} in point")
+
+    def __setitem__(self, key, value):
+        if key == 0:
+            self.set_x(value)
+        if key == 1:
+            self.set_y(value)
+        raise IndexError(f"Cant access {key} in point")
+
+    def __len__(self):
+        return 2
 
     def equals(self, other):
         return self.get_x() == other.get_x() and self.get_y() == other.get_y()

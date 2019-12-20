@@ -116,7 +116,6 @@ def get_world(inp: Union[List[int], str, CustomList], machine: IntMachine) -> Wo
 
     def custom_read(read_code: List[int], loc: int, modes: Callable[[int], Mode]) -> Tuple[bool, int]:
         raise SystemError("Cant write to this machine right now")
-        # modes(1).write(read_code, loc + 1, direction)
         return False, loc + 2
 
     deploy_machine.register_action(3, custom_read)

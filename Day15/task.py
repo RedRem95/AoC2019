@@ -201,7 +201,9 @@ def draw_map(ship_map: Dict[Point, MapObject], robot_pos: Optional[Point] = None
 
 def fewest_steps(ship_map: Dict[Point, MapObject], start_point: Point = Point(0, 0),
                  target_point: Optional[Point] = None, evil_objects=None, not_passable=None, tested_points=None,
-                 current_index=0, print_steps: bool = False) -> Union[int, None]:
+                 current_index=0, print_steps: bool = False,
+                 next_point_pos: List[Callable[[Point], Point]] = [x for x in direction_ops.values()]) -> Union[
+    int, None]:
     if tested_points is None:
         tested_points = {}
     if not_passable is None:
@@ -231,7 +233,7 @@ def fewest_steps(ship_map: Dict[Point, MapObject], start_point: Point = Point(0,
         if testing_point == target_point:
             return index
         index += 1
-        test_points = [x(testing_point) for x in direction_ops.values()]
+        test_points = [x(testing_point) for x in next_point_pos]
         for tp in (x for x in test_points if min_x <= x.get_x() <= max_x and min_y <= x.get_y() <= max_y and not any(
                 isinstance(ship_map[x], y) if x in ship_map else False for y in
                 evil_objects) and x not in not_passable):
@@ -246,7 +248,8 @@ def fewest_steps(ship_map: Dict[Point, MapObject], start_point: Point = Point(0,
     return None
 
 
-def get_good_path(point_indexes: Dict[Point, int], origin: Point, target: Point) -> List[
+def get_good_path(point_indexes: Dict[Point, int], origin: Point, target: Point,
+                  next_point_pos: List[Callable[[Point], Point]] = [x for x in direction_ops.values()]) -> List[
     Tuple[Point, Union[str, MapObject]]]:
     ret: List[Tuple[Point, Union[str, MapObject]]] = []
 

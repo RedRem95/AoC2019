@@ -15,6 +15,7 @@ class HullRobot:
         self.machine = machine
         self.default_color = default_color
         self.panel: Dict[Point, int] = {}
+        self.__panel_steps: List[Tuple[Dict[Point, int], Point, int]] = []
         self.painted_panels = 0
         self.direction = 1
         self.direction_change = {
@@ -28,8 +29,8 @@ class HullRobot:
     def set_machine(self, machine: IntMachine):
         self.machine = machine
 
-    def get_color(self, point: Point):
-        return self.panel.get(point, self.default_color)
+    def get_color(self, point: Point, panel=None):
+        return (panel or self.panel).get(point, self.default_color)
 
     def move(self, steps: int = 1):
         if self.direction == 1:
@@ -40,6 +41,7 @@ class HullRobot:
             self.position = Point(self.position.get_x(), self.position.get_y() - steps)
         elif self.direction == 4:
             self.position = Point(self.position.get_x() - steps, self.position.get_y())
+        self.__panel_steps.append((self.panel.copy(), self.position.copy(), self.direction))
 
     def get_painted_panes(self) -> int:
         return self.painted_panels
@@ -89,29 +91,58 @@ class HullRobot:
         work_code(code, deploy_machine)
 
     def get_work(self, color_codes: Dict[int, object] = {0: ".", 1: "#"},
-                 direction_codes: Dict[int, object] = {1: "^", 2: ">", 3: "v", 4: "<"}) -> Iterable[Iterable[object]]:
-        x_l = [x.get_x() for x in self.panel.keys()] + [self.position.get_x()]
-        y_l = [x.get_y() for x in self.panel.keys()] + [self.position.get_y()]
-        min_x = min(x_l)
-        max_x = max(x_l)
-        min_y = min(y_l)
-        max_y = max(y_l)
+                 direction_codes: Dict[int, object] = {1: "^", 2: ">", 3: "v", 4: "<"}, panel=None, position=None,
+                 direction=None, min_x=None, max_x=None, min_y=None, max_y=None) -> Iterable[Iterable[object]]:
+        direction = direction or self.direction
+        panel = panel or self.panel
+        position = position or self.position
+        x_l = [x.get_x() for x in panel.keys()] + [position.get_x()]
+        y_l = [x.get_y() for x in panel.keys()] + [position.get_y()]
+        min_x = min(x_l) if min_x is None else min(*x_l, min_x)
+        max_x = max(x_l) if max_x is None else max(*x_l, max_x)
+        min_y = min(y_l) if min_y is None else min(*x_l, min_y)
+        max_y = max(y_l) if max_y is None else max(*x_l, max_y)
         for y in range(max_y, min_y - 1, -1):
-            yield (direction_codes[self.direction] if self.position.equals(Point(x, y)) else color_codes[
-                self.get_color(Point(x, y))] for x in range(min_x, max_x + 1, 1))
+            yield (direction_codes[direction] if position.equals(Point(x, y)) else color_codes[
+                self.get_color(Point(x, y), panel=panel)] for x in range(min_x, max_x + 1, 1))
 
     def draw_work(self, color_codes={0: ".", 1: "#"}, direction_codes={1: "^", 2: ">", 3: "v", 4: "<"}):
         custom_printer("-" * 25)
         custom_printer("\n".join("".join((str(j) for j in i)) for i in self.get_work(color_codes, direction_codes)))
         custom_printer("-" * 25)
 
+    def draw_sequence(self, colors: Dict[int, Tuple[int, int, int]] = {1: (255, 255, 255), 0: (0, 0, 0)},
+                      robot_color=(255, 0, 0)) -> Iterable:
+        pos_x = [x[1].get_x() for x in self.__panel_steps]
+        pos_y = [x[1].get_y() for x in self.__panel_steps]
+        x_l = [[y.get_x() for y in x[0].keys()] for x in self.__panel_steps]
+        y_l = [[y.get_y() for y in x[0].keys()] for x in self.__panel_steps]
+        min_x = min(*(min(x) for x in x_l), *pos_x)
+        max_x = max(*(max(x) for x in x_l), *pos_x)
+        min_y = min(*(min(x) for x in y_l), *pos_y)
+        max_y = max(*(max(x) for x in y_l), *pos_y)
+        return (self.draw_bmp(colors=colors, robot_color=robot_color, res_image=[[y for y in x] for x in
+                                                                                 self.get_work(color_codes=colors,
+                                                                                               direction_codes={
+                                                                                                   1: robot_color,
+                                                                                                   2: robot_color,
+                                                                                                   3: robot_color,
+                                                                                                   4: robot_color},
+                                                                                               panel=panel,
+                                                                                               position=pos,
+                                                                                               direction=direction,
+                                                                                               max_x=max_x, min_x=min_x,
+                                                                                               max_y=max_y,
+                                                                                               min_y=min_y)]) for
+                panel, pos, direction in self.__panel_steps)
+
     def draw_bmp(self, colors: Dict[int, Tuple[int, int, int]] = {1: (255, 255, 255), 0: (0, 0, 0)},
-                 robot_color=(255, 0, 0)) -> Image:
-        res_image = [[y for y in x] for x in self.get_work(color_codes=colors,
-                                                           direction_codes={1: robot_color,
-                                                                            2: robot_color,
-                                                                            3: robot_color,
-                                                                            4: robot_color})]
+                 robot_color=(255, 0, 0), res_image: List[List[Tuple[int, int, int]]] = None) -> Image:
+        res_image = res_image or [[y for y in x] for x in self.get_work(color_codes=colors,
+                                                                        direction_codes={1: robot_color,
+                                                                                         2: robot_color,
+                                                                                         3: robot_color,
+                                                                                         4: robot_color})]
         height = len(res_image)
         width = len(res_image[0]) if height > 0 else 0
         img = Image.new('RGBA', (width, height), (0, 0, 0, 0))  # Create a new black image
@@ -134,3 +165,7 @@ def main():
     main_painter.deploy_robot(INPUT, print_steps=False)
     custom_printer(f"Robot painted {main_painter.get_painted_panes()} panels on its way")
     main_painter.draw_bmp().save("Registration_hull.png", "PNG")
+    images = [x for x in main_painter.draw_sequence()]
+    print(f"I will create {len(images)} images")
+    for i, im in enumerate(main_painter.draw_sequence()):
+        im.save(f"hull_sequence/register_{i}.png", "PNG")
